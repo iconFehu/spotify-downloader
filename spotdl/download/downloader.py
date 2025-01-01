@@ -238,7 +238,7 @@ class Downloader:
 
         logger.debug("Downloader initialized")
 
-    def download_song(self, song: Song) -> Tuple[Song, Optional[Path]]:
+    async def download_song(self, song: Song) -> Tuple[Song, Optional[Path]]:
         """
         Download a single song.
 
@@ -251,11 +251,11 @@ class Downloader:
 
         self.progress_handler.set_song_count(1)
 
-        results = self.download_multiple_songs([song])
+        results = await self.download_multiple_songs([song])
 
         return results[0]
 
-    def download_multiple_songs(
+    async def download_multiple_songs(
         self, songs: List[Song]
     ) -> List[Tuple[Song, Optional[Path]]]:
         """
@@ -295,7 +295,10 @@ class Downloader:
         tasks = [self.pool_download(song) for song in songs]
 
         # Call all task asynchronously, and wait until all are finished
-        results = list(self.loop.run_until_complete(asyncio.gather(*tasks)))
+        if self.loop.is_running():
+            results = list(await asyncio.gather(*tasks))
+        else:
+            results = list(self.loop.run_until_complete(asyncio.gather(*tasks)))
 
         # Print errors
         if self.settings["print_errors"]:

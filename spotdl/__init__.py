@@ -141,7 +141,7 @@ class Spotdl:
 
         return urls
 
-    def download(self, song: Song) -> Tuple[Song, Optional[Path]]:
+    async def download(self, song: Song) -> Tuple[Song, Optional[Path]]:
         """
         Download and convert song to the output format.
 
@@ -152,7 +152,7 @@ class Spotdl:
         - A tuple containing the song and the path to the downloaded file if successful.
         """
 
-        return self.downloader.download_song(song)
+        return await self.downloader.download_song(song)
 
     def download_songs(self, songs: List[Song]) -> List[Tuple[Song, Optional[Path]]]:
         """
